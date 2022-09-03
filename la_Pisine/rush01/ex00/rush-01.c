@@ -3,30 +3,54 @@
 
 #define SIZE 4
 
-int **putValueByIdx(int **input, int **result, int idx, int value)
+int **putValueByIdx(int **result, int **flag, int i, int j)
 {
-	if (idx < 4)
-		result[input[idx][0] - '0' - 1][idx] = value;
+	if (i < 4)
+	{
+		if (j == 0)
+		{
+			flag[0][i] = 1;
+			result[0][i] = 4;
+		}
+		else
+		{
+			flag[3][i] = 1;
+			result[0][i] = 4;
+		}
+	}
 	else
-		result[idx % SIZE][input[idx][0] - '0' - 1] = value;
+	{
+		if (j == 0)
+		{
+			flag[i - 4][0] = 1;
+			result[i - 4][0] = 4;
+		}
+		else
+		{
+			flag[i - 4][3] = 1;
+			result[i - 4][0] = 4;
+		}
+	}
 	return (result);
 }
 
 int	**putMAX(int **input, int **result, int **flag)
 {
 	int	i;
+	int	j;
 
 	i = 0;
-	while (i < SIZE * SIZE)
+	j = 0;
+	while (i < SIZE)
 	{
-		if (input[i / SIZE][i % SIZE] - '0' == 1)
+		while (j < 2)
 		{
-			putValueByIdx(input, result, i, SIZE);
-			flag[i / SIZE][i % SIZE] = 1;
-		}
-			
-		if (!flag[i / SIZE][i % SIZE] && input[i % SIZE][0] + input[i % SIZE][1] == SIZE + 1)
-			putValueByIdx(input, result, i, SIZE);
+			// input value is 1.
+			if (input[i][j] - '0' == 1)
+				putValueByIdx(result, flag, i, j);
+		}  
+		if (input[i][0] + input[i][1] == SIZE + 1)
+			putValueByIdx(result, flag, i, j);
 		i++;
 	}
 	return (result);
@@ -48,11 +72,11 @@ void rush(int **result)
 			{
 				result[i][result[i][0] - '0'] = 4;
 			}
+			i++;
 		}
 	}
 	
 }
-		
 
 int main (int ac, char **av)
 {
@@ -69,20 +93,31 @@ int main (int ac, char **av)
 	*flag = malloc(sizeof(int) * SIZE);	
 	result = malloc(sizeof(int*) * SIZE);
 	*result = malloc(sizeof(int) * SIZE);
-	if (ac == 17)
+	if (ac == 2)
 	{
 		while (i < SIZE * SIZE)
 			flag[i / SIZE][i % SIZE] = 0;
 		while (i < 2 * SIZE)
 		{
-			input[i % SIZE][i / SIZE] = av[i][0] - '0';
+			input[i % SIZE][i / SIZE] = av[1][2 * i] - '0';
 			i++;
 		}
 		while (i < 4 * SIZE)
 		{
-			input[i % SIZE + 4][i / SIZE - 2] = av[i][0] - '0';
+			input[i % SIZE + 4][i / SIZE - 2] = av[1][2 * i] - '0';
 			i++;
 		}	
 		result = putMAX(input, result, flag);
+	}
+
+	i = 0;
+	while (i < 16)
+	{
+		result[i / SIZE][i % SIZE] += '0';
+		write(1, &result[i / SIZE][i % SIZE], 1);
+		write(1, " ", 1);
+		i++;
+		if (i % SIZE == 0)
+			write(1, "\n", 1);
 	}
 }
